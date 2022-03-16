@@ -15,33 +15,55 @@ output: html_document
   3. Airtemp: temperatura do ar em graus celcius.
   4. Mass_lost: perda de massa corporal em gramas.
 
-Carregando os pacotes, banco de dados e selecionando apenas as colunas de interesse.
+1. Aqui iremos definir o diretório, carregar os pacotes e o banco de dados.
 ```{r}
-library(AICcmodavg)
-library(dplyr)
 library(MuMIn)
-data("dry.frog")
-dados<- dry.frog %>%select(Shade, Cloud,Airtemp, Mass_lost)
+library(openxlsx)
+dados<- read.xlsx("Dados.xlsx")
 ```
 
-Olhando as 10 primeiras linhas da tabela
+1.2. Vamos visualizar as 10 primeiras linhas do conjunto de dados.
 ```{r}
 head(dados, 10)
 ```
 
-Checando as variaveis
+1.3. Agora precisamos checar como o formato em que o R leu os dados, para saber se os dados estão no formato correto.
 ```{r}
 str(dados)
 ```
+Podemos ver que a variável Shade está interpretada como variável numérica, mas na verdade ela deve ser interpretatada como uma variável categórica.
+
+Então vamos converter ela em fator, e depois checar se ela realmente foi interetada como fator.
 ```{r}
 dados$Shade<- as.factor(dados$Shade)
 str(dados)
 ```
-Método do Teste de significancia da hipótese nula (NHST)
+Agora o R está interpretando ela como faotr e nos dizendo que ela possui os níveis 0 e 1 que significa não estar na sombra e estar na sombra respectavamente.
+
+# Testando as nossas hipóteses
+
+  Antes de testar as nossas hipoteses precisamos entender primeiro como descrevemos o nosso modelo estatístico no R. Para isso utilizamos o a função lm() que significar linear model, e especificamos o noss modelo da seguinte maneira.
+  
+               lm(y~x, data) 
+
+  onde:
+  y= é a variável resposta, nesse caso Mass_lost;
+  x= é a variável preditora, no nosso caso teremos três variáveis preditoras;
+  data= é o conjunto de dados que as minhas variáveis fazem parte.
+  til(~)= significa em função de, ou seha, minha variável resposta em função das variáveis preditoras.
+
+
+
+## 1. Teste de significancia da hipótese nula (NHST)
+
+1.1 Primeiramente, 
 ```{r}
 nhst<- lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
 summary(nhst)
 ```
+
+
+
 
 Intervalo de confiança
 ```{r}
