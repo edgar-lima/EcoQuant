@@ -1,2 +1,0 @@
-# EcoQuant
-EcoQuant blog repository

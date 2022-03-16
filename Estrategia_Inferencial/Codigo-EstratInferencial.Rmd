@@ -1,0 +1,53 @@
+---
+title: "Estratégias Inferenciais"
+author: "Edgar Luiz de Lima"
+date: "11/03/2022"
+output: html_document
+---
+
+Carregando os pacotes, banco de dados e selecionando apenas as colunas de interesse.
+```{r}
+library(AICcmodavg)
+library(dplyr)
+library(MuMIn)
+data("dry.frog")
+dados<- dry.frog %>%select(Shade, Cloud,Airtemp, Mass_lost)
+```
+
+Olhando as 10 primeiras linhas da tabela
+```{r}
+head(dados, 10)
+```
+
+Checando as variaveis
+```{r}
+str(dados)
+```
+```{r}
+dados$Shade<- as.factor(dados$Shade)
+str(dados)
+```
+Método do Teste de significancia da hipótese nula (NHST)
+```{r}
+nhst<- lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
+summary(nhst)
+```
+
+Intervalo de confiança
+```{r}
+intconf<- lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
+confint.lm(object = intconf)
+coef(intconf)
+```
+
+Selecao de modelos
+```{r}
+comp<-lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
+tempcl<-lm(Mass_lost~Airtemp+Cloud, data = dados)
+tempsh<-lm(Mass_lost~Airtemp+Shade, data = dados)
+
+contraste<- model.sel(comp,tempcl, tempsh)
+contraste<-contraste[,c(6:10)]
+contraste
+```
+
