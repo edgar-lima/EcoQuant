@@ -5,6 +5,16 @@ date: "11/03/2022"
 output: html_document
 ---
 
+# Dados
+  O conjunto de dados que iremos utilizar foi retirado de um conjuto de dados muito maior de Mazerolle & Desrochers (2005).
+  
+  Ele apresenta as seguintes variáveis:
+  
+  1. Shade: variável binária indicando se o indivíduo foi coletado na sombra(1= sim, 0= não).
+  2. Cloud: cobertura de núvem expressa em porcentagem.
+  3. Airtemp: temperatura do ar em graus celcius.
+  4. Mass_lost: perda de massa corporal em gramas.
+
 Carregando os pacotes, banco de dados e selecionando apenas as colunas de interesse.
 ```{r}
 library(AICcmodavg)
