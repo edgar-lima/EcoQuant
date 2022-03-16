@@ -56,13 +56,30 @@ Agora o R está interpretando ela como faotr e nos dizendo que ela possui os ní
 
 ## 1. Teste de significancia da hipótese nula (NHST)
 
-1.1 Primeiramente, 
+1.1 Primeiramente, temos que especificar o nosso modelo.
+  Então,especificaremos o nosso modelo da seguinte maneira, Mass_lost em função de Airtemp,Cloud e Shade. E indicamos que as variáveis está dento do conjunto de dados chamada dados.
 ```{r}
 nhst<- lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
+nhst
+```
+  Pronto, o modelo já foi ajustado, podemos ler o ajuste do modelo da seguinte forma:
+  
+  Intercep= média da Mass_loss para os indivíduos que não está na sombra.
+  Airtemp= é o tamanho de efeito(a1) da Airtemp sobre a Mass_loss (aqui o tamanho de efeito é representado pelo coeficiente de inclinação da reta).
+  Clound= é o tamanho de efeito(a1) da Cloud sobre a Mass_loss.
+  Shade1= é o tamanho de efeito da variável Shade sobre o Mass_loss, ou seja, é a diferença entre as médias de Mass_loss no tratamento 1 e 0.
+  
+  Podemos obter o valor da média de Mass_loss no tratamento shade1 subtraindo do intercept o valor do tamanho de efeito.
+```{r}
+coefi<- nhst$coefficients
+coefi[1]-abs(coefi[4])
+```
+  Podemos observar então que o valor da média de Mass_loss em Shade1 que são aqueles indivíduos coletados em ambiente sombreado é igual a 1.631833
+
+  1.2. Agora vamos verificar o valor de p para saber se iremos rejeitar a hipótese nula.
+```{r}
 summary(nhst)
 ```
-
-
 
 
 Intervalo de confiança
