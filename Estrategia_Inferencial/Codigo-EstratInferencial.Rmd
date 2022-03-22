@@ -21,6 +21,9 @@ output:
 ```{r}
 library(MuMIn)
 library(openxlsx)
+library(ggplot2)
+library(ggpubr)
+library(effectsize)
 dados<- read.xlsx("Dados.xlsx")
 ```
 
@@ -87,9 +90,68 @@ Nesse caso então, rejeitamos a hipótese nula e aceitamos a hipótese alternati
 ## 2. Intervalo de confiança
 ```{r}
 intconf<- lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
-confint.lm(object = intconf)
-coef(intconf)
+ic<-confint.lm(object = intconf)
+tam<- coef(intconf)
+esnat<- data.frame(c("Air Temp","Cloud","Shade" ),tam[c(2,3,4)],ic[c(2,3,4),1],ic[c(2,3,4),2])
+colnames(esnat)<- c("Var","Tam", "ICmin","ICmax")
+esnat[,1]<-as.factor(esnat[,1])
 ```
+Aqui a melhor maneira de se conferir os resultados é a partir da visualização gráfica, então vamos construir um gráfico para visualizarmos os resultados.
+
+Mas uma coisa importante de se considerar, é que cada variável está em uma unidade de medida diferente, se vamos analisar os efeitos separadamente, sem fazer comparação entre variáveis, podemos manter os tamanhos de efeito na escala original das variáveis, se formos fazer uma comparação do tamanho de efeito entre as variáveis precisamos padronizar os tamanhos de efeito. Isso pode ser feito de duas formas, padronizando os tamanhos de efeito depois que o modelo foi ajustado, ou padronizar as variáveis (e.g. Z-Score) antes e depois ajustar o modelo com as variáveis padronizadas.
+
+Aqui iremos fazer a padronização com o modelo já ajustado, a transformação que será aplicada é a do Z-Score.
+```{r}
+efpad<- effectsize(intconf)
+
+efpad2<- data.frame(c("Air Temp","Cloud","Shade" ),
+                    efpad[c(2,3,4),2], efpad$CI_low[-1],efpad$CI_high[-1] )
+colnames(efpad2)<- c("Var","Tam", "ICmin","ICmax")
+efpad2[,1]<-as.factor(efpad2[,1])
+
+```
+
+Agora vamos criar os gráficos para interpretar os resultados.
+
+Gráfico para o tamanho de efeito na escala originao da variável.
+```{r}
+orig<-ggplot(data= esnat, aes( Tam,Var,xmin= ICmin, xmax= ICmax))+
+  geom_errorbarh(alpha=2,size= 1.5, height= 0.8) +
+  geom_point(shape= 15, size=5)+
+  scale_x_continuous(breaks= seq(-1.5,0.3,0.2),
+                     limits = c(-1.5,0.3))+
+  geom_vline(xintercept = 0.0, linetype=2, size = 1.5)+
+  ylab("Variáveis")+
+  xlab("Tamanho de efeito (Z-Score)")+
+  labs(title= "Tamanho de efeito escala original")+
+  theme_bw()+
+  theme(panel.grid = element_blank(), axis.title = element_text(size= 16, colour = "black"), 
+        axis.title.y = element_blank(),axis.text = element_text(size = 14, colour = "black"), axis.text.y =element_blank(),
+         plot.title = element_text(size = 15, hjust =.5))
+```
+
+Gráfico para o tamanho de efeito padronizado.
+```{r}
+tampad<- ggplot(data= efpad2, aes( Tam,Var,xmin= ICmin, xmax= ICmax))+
+  geom_errorbarh(alpha=2,size= 1.5, height= 0.8) +
+  geom_point(shape= 15, size=5)+
+  scale_x_continuous(breaks= seq(-0.9,0.3,0.2),
+                     limits = c(-0.9,0.3))+
+  geom_vline(xintercept = 0.0, linetype=2, size = 1.5)+
+  ylab("Variáveis")+
+  xlab("Tamanho de efeito (Z-Score)")+
+  labs(title= "Tamanho de efeito padronizado")+
+  theme_bw()+
+  theme(panel.grid = element_blank(), axis.title = element_text(size= 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"),
+         plot.title = element_text(size = 15, hjust =.5))
+  
+```
+
+Juntando os dois gráficos.
+```{r}
+ggarrange(tampad,orig,ncol = 2, nrow = 1)
+```
+
 
 Selecao de modelos
 ```{r}
