@@ -152,7 +152,7 @@ Juntando os dois gráficos.
 ggarrange(tampad,orig,ncol = 2, nrow = 1)
 ```
 
-
+Com base nos resultados na inferencia por intervalo de confiança, podemos concluir que aprenas a variável Shade possui efeito sob a perda de massa corporal.
 Selecao de modelos
 ```{r}
 comp<-lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
