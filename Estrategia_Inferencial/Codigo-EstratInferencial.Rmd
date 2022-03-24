@@ -195,11 +195,27 @@ raju
 ```{r}
 contraste<- model.sel(comp,tempcl, tempsh, temp)
 contraste<-contraste[,c(6:10)]
-contraste
+contraste[,c(1,3)]
+```
+
+Organizando os dados para fazer a análise gráfica.
+```{r}
+daic<- data.frame(row.names(contraste),contraste[,4])
+colnames(daic)<- c("Hipoteses", "Delta_AIC")
 ```
 
 
-Gráfico AIC.
+Seleção de modelos utilizando o Delta AIC e fazendo a interpretação gráfica.
 ```{r}
-
+ggplot(data= daic, aes( Hipoteses,Delta_AIC))+
+  geom_point(shape= 15, size=5)+
+  #scale_x_continuous(breaks= seq(-0.9,0.3,0.2),
+                   #  limits = c(-0.9,0.3))+
+  geom_hline(yintercept = 2, linetype=2, size = 1.5)+
+  ylab(~Delta~AIC)+
+  xlab("Hipóteses")+
+  #labs(title= "Tamanho de efeito padronizado")+
+  theme_bw()+
+  theme(panel.grid = element_blank(), axis.title = element_text(size= 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"),
+         plot.title = element_text(size = 15, hjust =.5))
 ```
