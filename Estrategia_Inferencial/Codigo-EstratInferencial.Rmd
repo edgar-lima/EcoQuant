@@ -152,15 +152,54 @@ Juntando os dois gráficos.
 ggarrange(tampad,orig,ncol = 2, nrow = 1)
 ```
 
-Com base nos resultados na inferencia por intervalo de confiança, podemos concluir que aprenas a variável Shade possui efeito sob a perda de massa corporal.
-Selecao de modelos
+Com base nos resultados na inferencia por intervalo de confiança, podemos concluir que aprenas a variável Shade possui efeito sob a perda de massa corporal. Sendo que indivíduos que estão na sombra perdem 0.789 a menos que indivíduos fora da sombra.
+
+## 3. Selecao de modelos
+
+Para a seleção de modelos iremos testar as seguintes hipóteses:
+  1. (H1)A Perda de massa é afetada pela Airtemp, Clound e Shade;
+  2. (H2) A preda de massa é afetada pela Airtemp e Cloud;
+  3. (H3) A perda de massa é afetada pela Airtempo e Shade;
+  4. (H4) A perda de massa é afetada pela Airtemp.
+  
+Ajustando os modelos correspondentes a cada uma das hipoteses.
 ```{r}
 comp<-lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
 tempcl<-lm(Mass_lost~Airtemp+Cloud, data = dados)
 tempsh<-lm(Mass_lost~Airtemp+Shade, data = dados)
+temp<- lm (Mass_lost~Airtemp+Shade, data = dados)
 
-contraste<- model.sel(comp,tempcl, tempsh)
+```
+
+3.1. Seleção de modelos utilizando a Soma dos quadrados dos resíduos (SQR).
+```{r}
+
+sqr<-data.frame(sum(comp$residuals^2),sum(tempcl$residuals^2), sum(tempsh$residuals^2),sum(temp$residuals^2))
+colnames(sqr)<- c("H1", "H2", "H3", "H4")
+sqr
+```
+
+3.2. Seleção de modelos utilizando o R² ajustado.
+```{r}
+a<- summary(comp)$adj.r.squared
+b<- summary(tempcl)$adj.r.squared
+c<- summary(tempsh)$adj.r.squared
+d<- summary(temp)$adj.r.squared
+
+raju<-data.frame(a,b,c,d)
+colnames(raju)<- c("H1", "H2", "H3", "H4")
+raju
+```
+
+3.3. Seleção de modelos utilizando o AIC.
+```{r}
+contraste<- model.sel(comp,tempcl, tempsh, temp)
 contraste<-contraste[,c(6:10)]
 contraste
 ```
 
+
+Gráfico AIC.
+```{r}
+
+```
