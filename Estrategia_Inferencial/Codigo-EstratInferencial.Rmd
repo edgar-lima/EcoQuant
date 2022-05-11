@@ -3,8 +3,9 @@ title: "Estratégias Inferenciais"
 author: "Edgar Luiz de Lima"
 date: "11/03/2022"
 output:
-  pdf_document: default
+  word_document: default
   html_document: default
+  pdf_document: default
 ---
 
 # Dados
@@ -12,10 +13,10 @@ output:
   
   Ele apresenta as seguintes variáveis:
   
-  1. Shade: variável binária indicando se o indivíduo foi coletado na sombra(1= sim, 0= não).
-  2. Cloud: cobertura de núvem expressa em porcentagem.
-  3. Airtemp: temperatura do ar em graus celcius.
-  4. Mass_lost: perda de massa corporal em gramas.
+  1. Sombra: variável binária indicando se o indivíduo foi coletado na sombra(1= sim, 0= não).
+  2. Nuvem: cobertura de núvem expressa em porcentagem.
+  3. Temperatura do ar: temperatura do ar em graus celcius.
+  4. Perda de massa: perda de massa corporal em gramas.
 
 1. Aqui iremos definir o diretório, carregar os pacotes e o banco de dados.
 ```{r}
@@ -27,59 +28,61 @@ library(effectsize)
 dados<- read.xlsx("Dados.xlsx")
 ```
 
-1.2. Vamos visualizar as 10 primeiras linhas do conjunto de dados.
+1.2. Vamos visualizar as 5 primeiras linhas do conjunto de dados.
 ```{r}
-head(dados, 10)
+head(dados,5)
 ```
 
 1.3. Agora precisamos checar como o formato em que o R leu os dados, para saber se os dados estão no formato correto.
 ```{r}
 str(dados)
 ```
-Podemos ver que a variável Shade está sendo interpretada como variável numérica, mas na verdade ela deve ser interpretatada como uma variável categórica.
+Podemos ver que a variável Sombra está sendo interpretada como variável numérica, mas na verdade ela deve ser interpretatada como uma variável categórica.
 
 Então vamos converter ela em fator, e depois checar se ela realmente foi interpretada como fator.
 ```{r}
-dados$Shade<- as.factor(dados$Shade)
+dados$Sombra<- as.factor(dados$Sombra)
 str(dados)
 ```
+
 Agora o R está interpretando ela como fator, e está nos dizendo que ela possui os níveis 0 e 1, que significam não estar na sombra e estar na sombra respectavamente.
 
 # Testando as nossas hipóteses
 
-  Antes de testar as nossas hipoteses precisamos entender primeiro como descrevemos o nosso modelo estatístico no R. Para isso utilizamos o a função lm() que significar linear model, e especificamos o noss modelo da seguinte maneira.
+  Antes de testar as nossas hipoteses precisamos entender primeiro como descrevemos o nosso modelo estatístico no R. Para isso utilizamos o a função lm() que significa linear model, e especificamos o nosso modelo da seguinte maneira.
   
                lm(y~x, data) 
 
   onde:
-  1. y= é a variável resposta, nesse caso Mass_lost;
-  2. x= é a variável preditora, no nosso caso teremos três variáveis preditoras;
-  3. data= é o conjunto de dados que as minhas variáveis fazem parte.
-  4. til(~)= significa em função de, ou seha, minha variável resposta em função das variáveis preditoras.
+  1. y= é a variável resposta, nesse caso Perda de massa;
+  2. x= é a variável preditora, no nosso caso temos três variáveis preditoras;
+  3. data= é o conjunto de dados que nossas variáveis fazem parte.
+  4. til(~)= significa em função de, ou seja, nossa variável resposta em função das variáveis preditoras.
 
 
 
 ## 1. Teste de significancia da hipótese nula (NHST)
 
 1.1 Primeiramente, temos que especificar o nosso modelo.
-  Então,especificaremos o nosso modelo da seguinte maneira, Mass_lost em função de Airtemp,Cloud e Shade. E indicamos que as variáveis está dento do conjunto de dados chamada dados.
+
+  Então,especificaremos o nosso modelo da seguinte maneira, Perda de massa em função da Temperatura do ar,Nuvem e sombra. E indicamos que as variáveis estão dento do conjunto de dados chamado dados.
 ```{r}
-nhst<- lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
+nhst<- lm(Perda_de_massa~Temperatura_do_ar+Nuvem+Sombra, data = dados)
 nhst
 ```
   Pronto, o modelo já foi ajustado, podemos ler o ajuste do modelo da seguinte forma:
   
-  1. Intercep= média da Mass_loss para os indivíduos que não está na sombra.
-  2. Airtemp= é o tamanho de efeito(a1) da Airtemp sobre a Mass_loss (aqui o tamanho de efeito é representado pelo coeficiente de inclinação da reta).
-  3. Clound= é o tamanho de efeito(a1) da Cloud sobre a Mass_loss.
-  4. Shade1= é o tamanho de efeito da variável Shade sobre o Mass_loss, ou seja, é a diferença entre as médias de Mass_loss no tratamento 1 e 0.
+  1. Intercep= média da Perda de massa para os indivíduos que não está na sombra.
+  2. Temperatura do ar = é o tamanho de efeito(a1) da temperatura do ar sobre a variável resposta (aqui o tamanho de efeito é representado pelo coeficiente de inclinação da reta).
+  3. Nuvem= é o tamanho de efeito(a1) da porcentagem de nuvem sobre a perda de marssa corporal.
+  4. Sombra1= é o tamanho de efeito da variável sombra sobre o perda de massa, ou seja, é a diferença entre as médias para a variável sombra nos tratamentos 1 e 0.
   
   Podemos obter o valor da média de Mass_loss no tratamento shade1 subtraindo do intercept o valor do tamanho de efeito.
 ```{r}
 coefi<- nhst$coefficients
 coefi[1]-abs(coefi[4])
 ```
-  Podemos observar então que o valor da média de Mass_loss em Shade1 que são aqueles indivíduos coletados em ambiente sombreado é igual a 1.631833
+  Podemos observar então que o valor da média de perda de massa corporal em Sombra1 que são aqueles indivíduos coletados em ambiente sombreado é igual a 1.631833
 
   1.2. Agora vamos verificar o valor de p para saber se iremos rejeitar a hipótese nula.
 ```{r}
@@ -89,10 +92,10 @@ Nesse caso então, rejeitamos a hipótese nula e aceitamos a hipótese alternati
 
 ## 2. Intervalo de confiança
 ```{r}
-intconf<- lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
+intconf<- lm(Perda_de_massa~Temperatura_do_ar+Nuvem+Sombra, data = dados)
 ic<-confint.lm(object = intconf)
 tam<- coef(intconf)
-esnat<- data.frame(c("Air Temp","Cloud","Shade" ),tam[c(2,3,4)],ic[c(2,3,4),1],ic[c(2,3,4),2])
+esnat<- data.frame(c("Temperatura do ar","Nuvem","Sombra" ),tam[c(2,3,4)],ic[c(2,3,4),1],ic[c(2,3,4),2])
 colnames(esnat)<- c("Var","Tam", "ICmin","ICmax")
 esnat[,1]<-as.factor(esnat[,1])
 ```
@@ -104,7 +107,7 @@ Aqui iremos fazer a padronização com o modelo já ajustado, a transformação 
 ```{r}
 efpad<- effectsize(intconf)
 
-efpad2<- data.frame(c("Air Temp","Cloud","Shade" ),
+efpad2<- data.frame(c("Temperatura do ar","Nuvem","Sombra" ),
                     efpad[c(2,3,4),2], efpad$CI_low[-1],efpad$CI_high[-1] )
 colnames(efpad2)<- c("Var","Tam", "ICmin","ICmax")
 efpad2[,1]<-as.factor(efpad2[,1])
@@ -113,26 +116,9 @@ efpad2[,1]<-as.factor(efpad2[,1])
 
 Agora vamos criar os gráficos para interpretar os resultados.
 
-Gráfico para o tamanho de efeito na escala originao da variável.
+Gráfico com os tamanhos de efeito padronizados.
 ```{r}
-orig<-ggplot(data= esnat, aes( Tam,Var,xmin= ICmin, xmax= ICmax))+
-  geom_errorbarh(alpha=2,size= 1.5, height= 0.8) +
-  geom_point(shape= 15, size=5)+
-  scale_x_continuous(breaks= seq(-1.5,0.3,0.2),
-                     limits = c(-1.5,0.3))+
-  geom_vline(xintercept = 0.0, linetype=2, size = 1.5)+
-  ylab("Variáveis")+
-  xlab("Tamanho de efeito (Z-Score)")+
-  labs(title= "Tamanho de efeito escala original")+
-  theme_bw()+
-  theme(panel.grid = element_blank(), axis.title = element_text(size= 16, colour = "black"), 
-        axis.title.y = element_blank(),axis.text = element_text(size = 14, colour = "black"), axis.text.y =element_blank(),
-         plot.title = element_text(size = 15, hjust =.5))
-```
-
-Gráfico para o tamanho de efeito padronizado.
-```{r}
-tampad<- ggplot(data= efpad2, aes( Tam,Var,xmin= ICmin, xmax= ICmax))+
+ggplot(data= efpad2, aes( Tam,Var,xmin= ICmin, xmax= ICmax))+
   geom_errorbarh(alpha=2,size= 1.5, height= 0.8) +
   geom_point(shape= 15, size=5)+
   scale_x_continuous(breaks= seq(-0.9,0.3,0.2),
@@ -147,61 +133,60 @@ tampad<- ggplot(data= efpad2, aes( Tam,Var,xmin= ICmin, xmax= ICmax))+
   
 ```
 
-Juntando os dois gráficos.
-```{r}
-ggarrange(tampad,orig,ncol = 2, nrow = 1)
-```
-
 Com base nos resultados na inferencia por intervalo de confiança, podemos concluir que aprenas a variável Shade possui efeito sob a perda de massa corporal. Sendo que indivíduos que estão na sombra perdem 0.789 a menos que indivíduos fora da sombra.
 
 ## 3. Selecao de modelos
 
 Para a seleção de modelos iremos testar as seguintes hipóteses:
-  1. (H1)A Perda de massa é afetada pela Airtemp, Clound e Shade;
-  2. (H2) A preda de massa é afetada pela Airtemp e Cloud;
-  3. (H3) A perda de massa é afetada pela Airtempo e Shade;
-  4. (H4) A perda de massa é afetada pela Airtemp.
+  1. (H1) A Perda de massa é afetada pela Temperatura do ar, Nuvem e Sombra;
+  2. (H2) A perda de massa é afetada pela Temperatura do ar e Nuvem;
+  3. (H3) A perda de massa é afetada pela Temperaturado do ar e Sombra;
+  4. (H4) A perda de massa é afetada pela Temperatura do ar.
   
 Ajustando os modelos correspondentes a cada uma das hipoteses.
 ```{r}
-comp<-lm(Mass_lost~Airtemp+Cloud+Shade, data = dados)
-tempcl<-lm(Mass_lost~Airtemp+Cloud, data = dados)
-tempsh<-lm(Mass_lost~Airtemp+Shade, data = dados)
-temp<- lm (Mass_lost~Airtemp+Shade, data = dados)
+comp<-lm(Perda_de_massa~Temperatura_do_ar+Nuvem+Sombra, data = dados)
+tempnu<-lm(Perda_de_massa~Temperatura_do_ar+Nuvem, data = dados)
+tempsob<-lm(Perda_de_massa~Temperatura_do_ar+Sombra, data = dados)
+temp<- lm (Perda_de_massa~Temperatura_do_ar, data = dados)
 
 ```
 
 3.1. Seleção de modelos utilizando a Soma dos quadrados dos resíduos (SQR).
 ```{r}
 
-sqr<-data.frame(sum(comp$residuals^2),sum(tempcl$residuals^2), sum(tempsh$residuals^2),sum(temp$residuals^2))
+sqr<-data.frame(sum(comp$residuals^2),sum(tempnu$residuals^2), sum(tempsob$residuals^2),sum(temp$residuals^2))
 colnames(sqr)<- c("H1", "H2", "H3", "H4")
 sqr
 ```
+De acordo com os resultados da seleção de modelos utilizando a soma de quadrados dos resíduos selecionamos o modelo H1 que representa a hipótese em que as variáveis Temperatura do ar, Nuvem e Sombra afetam a perda de massa corporal.
 
 3.2. Seleção de modelos utilizando o R² ajustado.
 ```{r}
 a<- summary(comp)$adj.r.squared
-b<- summary(tempcl)$adj.r.squared
-c<- summary(tempsh)$adj.r.squared
+b<- summary(tempnu)$adj.r.squared
+c<- summary(tempsob)$adj.r.squared
 d<- summary(temp)$adj.r.squared
 
 raju<-data.frame(a,b,c,d)
 colnames(raju)<- c("H1", "H2", "H3", "H4")
 raju
 ```
+De acordo com os resultados da seleção de modelos o R² ajustado selecionamos o modelo H1 que representa a hipótese em que as variáveis Temperatura do ar, Nuvem e Sombra afetam a perda de massa corporal.
 
 3.3. Seleção de modelos utilizando o AIC.
 ```{r}
-contraste<- model.sel(comp,tempcl, tempsh, temp)
+contraste<- model.sel(comp,tempnu, tempsob, temp)
 contraste<-contraste[,c(6:10)]
 contraste[,c(1,3)]
 ```
+Analisando apenas os valores de AIC as hipótese que consideram somente a temperatuda do ar e a hipotese que considera a temperatura do ar e a sombra são as hipóteses com os menos AICs.
 
 Organizando os dados para fazer a análise gráfica.
 ```{r}
 daic<- data.frame(row.names(contraste),contraste[,4])
 colnames(daic)<- c("Hipoteses", "Delta_AIC")
+daic[,1]<- c("Temp+Sombra", "Completo","Temp+Nuvem","Temp" )
 ```
 
 
@@ -209,13 +194,11 @@ Seleção de modelos utilizando o Delta AIC e fazendo a interpretação gráfica
 ```{r}
 ggplot(data= daic, aes( Hipoteses,Delta_AIC))+
   geom_point(shape= 15, size=5)+
-  #scale_x_continuous(breaks= seq(-0.9,0.3,0.2),
-                   #  limits = c(-0.9,0.3))+
   geom_hline(yintercept = 2, linetype=2, size = 1.5)+
   ylab(~Delta~AIC)+
   xlab("Hipóteses")+
-  #labs(title= "Tamanho de efeito padronizado")+
   theme_bw()+
   theme(panel.grid = element_blank(), axis.title = element_text(size= 16, colour = "black"), axis.text = element_text(size = 14, colour = "black"),
          plot.title = element_text(size = 15, hjust =.5))
 ```
+Já o método utilizando o Delta AIC considerou o modelo completo e temperatura do ar mais Sombra como igualmente plausíveis, e pelo princípio da parcimônia o modelo com apenas a temperatura do ar mais sombra deve ser selecionado.
